@@ -123,15 +123,23 @@ const login = async (req, res) => {
 
 const getIssuedDocuments = async (req, res) => {
   try {
-    const userId = req.user?.id; // Assuming `req.user` is set by middleware
+    // const userId = req.user?.id; // Assuming `req.user` is set by middleware
+    
+    // // Validate the user ID
+    // if (!userId) {
+    //   return res.status(400).json({ error: "User not authenticated" });
+    // }
 
-    // Validate the user ID
-    if (!userId) {
-      return res.status(400).json({ error: "User not authenticated" });
+    // // Fetch documents from the database
+    // const documents = await DocumentModel.find({ userId }); // Adjust query to match your database schema
+
+    const receiver = req.body.receiver
+
+    if (!receiver) {
+      return res.status(400).json({error : "User not authenticated"})
     }
 
-    // Fetch documents from the database
-    const documents = await DocumentModel.find({ userId }); // Adjust query to match your database schema
+    const documents = await authService.getIssuedDocuments(receiver)
 
     res.status(200).json(documents);
   } catch (error) {
@@ -140,9 +148,30 @@ const getIssuedDocuments = async (req, res) => {
   }
 };
 
+const viewDocument = async (req, res) => {
+     try {
+        const cid = req.body.cid 
+
+        if (!cid) {
+          return res.status(400).json({error : "User not authenticated"})
+        }
+
+        const gateway = "https://silver-patient-scallop-975.mypinata.cloud/ipfs/";
+
+        const url = `${gateway}${cid}`
+
+        // res.status(200).json(url)
+        res.status(302).redirect(url)
+     }
+     catch (error) {
+      console.error("Error fetching issued documents:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+     }
+}
 
 
 
-module.exports = { signup, login, getIssuedDocuments };
+
+module.exports = { signup, login, getIssuedDocuments, viewDocument };
 
 

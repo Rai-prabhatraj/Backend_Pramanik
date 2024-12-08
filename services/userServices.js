@@ -85,6 +85,7 @@
 
 const User = require('../models/UserModel');
 const jwt = require('jsonwebtoken');
+const Document = require("../models/documentModel")
 
 const signup = async (userData) => {
   const existingUser = await User.findOne({ email: userData.email });
@@ -105,8 +106,14 @@ const login = async (email, password) => {
   return generateToken(user._id);
 };
 
+const getIssuedDocuments = async (receiver) => {
+  const result = await Document.find({ receiver })
+
+  return result
+}
+
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-module.exports = { signup, login };
+module.exports = { signup, login, getIssuedDocuments };
