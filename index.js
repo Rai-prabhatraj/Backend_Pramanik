@@ -12,7 +12,6 @@ app.use(cors())
 app.use(express.json())
 app.use('/user', userRoute)
 app.use('/issuer', issuerrouter)
-// app.use('/verifier', verifierRoute)
 app.get("/", (req, res) => {
     res.json({message : "Hello from the backend"})
 })

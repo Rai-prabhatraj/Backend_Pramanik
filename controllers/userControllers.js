@@ -1,106 +1,7 @@
-// const app_constant = require("../constants/app.json")
-// const userServices = require("../services/userServices")
-// const validationHelper = require("../helpers/validation")
 
-// exports.userSignup = async (req, res) => {
-//     try {
-//         const required_fields = ["user_name", "email", "password"];
-//         const validation = validationHelper.validation(
-//             required_fields,
-//             req.body
-//         );
-//         if (Object.keys(validation).length) {
-//             return res.json({
-//                 success: 0,
-//                 status_code: app_constant.BAD_REQUEST,
-//                 message: validation,
-//                 result: {},
-//             });
-//         }
-//         const validEmail = validationHelper.validEmail(req.body.email)
-
-//         if (!validEmail) {
-//             return res.json({
-//                 success: 0,
-//                 status: app_constant.BAD_REQUEST,
-//                 message: "Enter a valid Email",
-//                 result: {},
-//             })
-//         }
-
-//         const addUser = await userServices.userSignup(req.body);
-
-//         return res.json(addUser);
-//     }
-//     catch (error) {
-//         return res.json({
-//             success: 0,
-//             status_code: app_constant.INTERNAL_SERVER_ERROR,
-//             message: error.message,
-//             result: {},
-//         })
-//     }
-// }
-
-// exports.userLogin = async (req, res) => {
-//     try {
-//         const required_fields = ["email", "password"];
-//         const validation = validationHelper.validation(
-//             required_fields,
-//             req.body
-//         );
-//         if (Object.keys(validation).length) {
-//             return res.json({
-//                 success: 0,
-//                 status_code: app_constant.BAD_REQUEST,
-//                 message: validation,
-//                 result: {},
-//             });
-//         }
-
-//         const validEmail = validationHelper.validEmail(req.body.email)
-
-//         if (!validEmail) {
-//             return res.json({
-//                 success: 0,
-//                 status: app_constant.BAD_REQUEST,
-//                 message: "Enter a valid Email",
-//                 result: {},
-//             })
-//         }
-
-//         const loginUser = await userServices.userLogin(req.body)
-
-//         return res.json(loginUser)
-
-
-//     }
-//     catch (error) {
-//         return res.json({
-//             success: 0,
-//             status_code: app_constant.INTERNAL_SERVER_ERROR,
-//             message: error.message,
-//             result: {},
-//         })
-//     }
-// }
-
-// exports.userLogout = async (req, res) => {
-//     try {
-//          const data = await userServices.userLogout(req.user)
-
-//          return res.json(data)
-//     }
-//     catch(error) {
-//         return res.json({
-//             success: 0,
-//             status_code: app_constant.INTERNAL_SERVER_ERROR,
-//             message: error.message,
-//             result: {},
-//         })
-//     }
-// }
 const authService = require('../services/userServices');
+const DocumentRequest = require("../models/documentrequestModel");
+const createIssue = require("../models/IssueModel")
 
 const signup = async (req, res) => {
   try {
@@ -123,15 +24,23 @@ const login = async (req, res) => {
 
 const getIssuedDocuments = async (req, res) => {
   try {
-    const userId = req.user?.id; // Assuming `req.user` is set by middleware
+    // const userId = req.user?.id; // Assuming `req.user` is set by middleware
+    
+    // // Validate the user ID
+    // if (!userId) {
+    //   return res.status(400).json({ error: "User not authenticated" });
+    // }
 
-    // Validate the user ID
-    if (!userId) {
-      return res.status(400).json({ error: "User not authenticated" });
+    // // Fetch documents from the database
+    // const documents = await DocumentModel.find({ userId }); // Adjust query to match your database schema
+
+    const receiver = req.body.receiver
+
+    if (!receiver) {
+      return res.status(400).json({error : "User not authenticated"})
     }
 
-    // Fetch documents from the database
-    const documents = await DocumentModel.find({ userId }); // Adjust query to match your database schema
+    const documents = await authService.getIssuedDocuments(receiver)
 
     res.status(200).json(documents);
   } catch (error) {
@@ -140,9 +49,69 @@ const getIssuedDocuments = async (req, res) => {
   }
 };
 
+const viewDocument = async (req, res) => {
+     try {
+        const cid = req.body.cid 
+
+        if (!cid) {
+          return res.status(400).json({error : "User not authenticated"})
+        }
+
+        const gateway = "https://silver-patient-scallop-975.mypinata.cloud/ipfs/";
+
+        const url = `${gateway}${cid}`
+
+        // res.status(200).json(url)
+        res.status(302).redirect(url)
+     }
+     catch (error) {
+      console.error("Error fetching issued documents:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+     }
+}
 
 
 
-module.exports = { signup, login, getIssuedDocuments };
+const requestDocument = async (req, res) => {
+  try {
+    const { userId, type, documentName, details } = req.body; 
+    const request = new DocumentRequest({
+      userId,
+      type,
+      documentName,
+      details,
+      status: "pending",
+    });
+
+    await request.save();
+
+    res.status(201).json({ message: "Request submitted successfully", request });
+  } catch (err) {
+    console.error("Error submitting request:", err);
+    res.status(500).json({ error: "Failed to submit request" });
+  }
+};
+
+const postIssue = async (req, res) => {
+  try {
+    const { userId, title, description } = req.body;
+
+    const issueData = {
+      userId,
+      title,
+      description,
+      status: "pending",
+    };
+
+    const issue = await createIssue(issueData);
+    res.status(201).json({ message: "Issue submitted successfully", issue });
+  } catch (err) {
+    console.error("Error in postIssue controller:", err.message);
+    res.status(500).json({ error: "Failed to submit issue" });
+  }
+};
+
+
+module.exports = { signup, login, getIssuedDocuments, requestDocument,postIssue,viewDocument };
 
 
