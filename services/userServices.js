@@ -56,10 +56,28 @@ const getIssuedDocuments = async (receiver) => {
 
   return result
 }
+const getuploadDocuments = async (receiver) => {
+  const result = await Document.find({ receiver })
+
+  return result
+}
+
+const savedata = async (data) => {
+  try {
+    
+      const newData = new Document(data);
+
+
+      return await newData.save();
+  } catch (error) {
+      console.error('Error in saveData service:', error);
+      throw new Error('Database operation failed');
+  }
+};
 
 // const generateToken = (userId) => {
 //   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
 // };
 
 
-module.exports = { signup, login, createDocumentRequest,createIssue,getIssuedDocuments };
+module.exports = { signup, login, createDocumentRequest,createIssue,getIssuedDocuments,getuploadDocuments,savedata };
