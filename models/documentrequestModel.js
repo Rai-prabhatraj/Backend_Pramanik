@@ -1,13 +1,21 @@
-
 const mongoose = require("mongoose");
 
-const DocumentRequestSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  type: { type: String, enum: ["new", "update"], required: true },
-  documentName: { type: String, required: true },
-  details: { type: String, required: true },
-  status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
-  createdAt: { type: Date, default: Date.now },
+const documentRequestSchema = new mongoose.Schema({
+  userId: {
+    type: String, // Change ObjectId to String to accommodate wallet addresses
+    required: true
+  },
+  documentName: {
+    type: String,
+    required: true
+  },
+  details: {
+    type: String,
+    required: true
+  },
+  // Any other fields
 });
 
-module.exports = mongoose.model("DocumentRequest", DocumentRequestSchema);
+const DocumentRequest = mongoose.model("DocumentRequest", documentRequestSchema);
+
+module.exports = DocumentRequest;

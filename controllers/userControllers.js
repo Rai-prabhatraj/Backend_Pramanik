@@ -24,16 +24,7 @@ const login = async (req, res) => {
 
 const getIssuedDocuments = async (req, res) => {
   try {
-    // const userId = req.user?.id; // Assuming `req.user` is set by middleware
-    
-    // // Validate the user ID
-    // if (!userId) {
-    //   return res.status(400).json({ error: "User not authenticated" });
-    // }
-
-    // // Fetch documents from the database
-    // const documents = await DocumentModel.find({ userId }); // Adjust query to match your database schema
-
+  
     const receiver = req.body.receiver
 
     if (!receiver) {
@@ -61,8 +52,8 @@ const viewDocument = async (req, res) => {
 
         const url = `${gateway}${cid}`
 
-        // res.status(200).json(url)
-        res.status(302).redirect(url)
+        res.status(200).json(url)
+        // res.status(302).redirect(url)
      }
      catch (error) {
       console.error("Error fetching issued documents:", error);
