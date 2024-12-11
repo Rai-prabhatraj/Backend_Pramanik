@@ -56,6 +56,7 @@ const documentSchema = new mongoose.Schema({
   cid: { type: String},
   signature: { type: String },
   message: { type: String},
+  stat:{ type: String},
   createdAt: { type: Date, default: Date.now },
 });
 

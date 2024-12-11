@@ -24,16 +24,7 @@ const login = async (req, res) => {
 
 const getIssuedDocuments = async (req, res) => {
   try {
-    // const userId = req.user?.id; // Assuming `req.user` is set by middleware
-    
-    // // Validate the user ID
-    // if (!userId) {
-    //   return res.status(400).json({ error: "User not authenticated" });
-    // }
-
-    // // Fetch documents from the database
-    // const documents = await DocumentModel.find({ userId }); // Adjust query to match your database schema
-
+  
     const receiver = req.body.receiver
 
     if (!receiver) {
@@ -49,6 +40,25 @@ const getIssuedDocuments = async (req, res) => {
   }
 };
 
+const getuploadDocuments = async (req, res) => {
+  try {
+  
+    const receiver = req.body.receiver
+
+    if (!receiver) {
+      return res.status(400).json({error : "User not authenticated"})
+    }
+
+    const documents = await authService.getuploadDocuments(receiver)
+
+    res.status(200).json(documents);
+  } catch (error) {
+    console.error("Error fetching issued documents:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 const viewDocument = async (req, res) => {
      try {
         const cid = req.body.cid 
@@ -61,8 +71,8 @@ const viewDocument = async (req, res) => {
 
         const url = `${gateway}${cid}`
 
-        // res.status(200).json(url)
-        res.status(302).redirect(url)
+        res.status(200).json(url)
+        // res.status(302).redirect(url)
      }
      catch (error) {
       console.error("Error fetching issued documents:", error);
@@ -112,6 +122,23 @@ const postIssue = async (req, res) => {
 };
 
 
-module.exports = { signup, login, getIssuedDocuments, requestDocument,postIssue,viewDocument };
+const saveuploaded = async (req, res) => {
+  try {
+      const {receiver, cid, message,stat } = req.body;
+
+      if (!receiver || !cid || !message|| !stat) {
+          return res.status(400).json({ error: 'All fields are required' });
+      }
+
+      const savedData = await authService.savedata({receiver, cid,message,stat });
+
+      res.status(201).json({ message: 'Data successfully saved', data: savedData });
+  } catch (error) {
+      console.error('Error in saveData controller:', error.stack);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports = { signup, login, getIssuedDocuments, requestDocument,postIssue,viewDocument ,saveuploaded,getuploadDocuments};
 
 
