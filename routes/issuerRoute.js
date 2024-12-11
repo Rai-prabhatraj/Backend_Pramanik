@@ -1,8 +1,12 @@
 const express = require('express');
-const {saveData } = require('../controllers/Issuercontroller');
+const {getAllDocumentRequests,getAllIssues, saveDocument,getTasks } = require('../controllers/Issuercontroller');
 
 const issuerrouter = express.Router();
 
-issuerrouter.post('/saveData', saveData); 
+issuerrouter.post('/saveData', saveDocument); 
+issuerrouter.get('/getalldocuments', getAllDocumentRequests);
+issuerrouter.get('/getallissues', getAllIssues);
+issuerrouter.get('/getTasks', getTasks)
+
 
 module.exports = issuerrouter;
