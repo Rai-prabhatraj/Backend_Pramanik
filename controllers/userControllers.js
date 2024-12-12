@@ -2,6 +2,7 @@
 const authService = require('../services/userServices');
 const DocumentRequest = require("../models/documentrequestModel");
 const createIssue = require("../models/IssueModel")
+const requestModel = require("../models/ApplicationModel")
 
 const signup = async (req, res) => {
   try {
@@ -81,26 +82,12 @@ const viewDocument = async (req, res) => {
 }
 
 
-
-const requestDocument = async (req, res) => {
-  try {
-    const { userId, type, documentName, details } = req.body; 
-    const request = new DocumentRequest({
-      userId,
-      type,
-      documentName,
-      details,
-      status: "pending",
-    });
-
-    await request.save();
-
-    res.status(201).json({ message: "Request submitted successfully", request });
-  } catch (err) {
-    console.error("Error submitting request:", err);
-    res.status(500).json({ error: "Failed to submit request" });
-  }
-};
+const createRequest = async (req, res) => { 
+  try { const { doctype, issuingAuthority, message, cid, receiver } = req.body; 
+  const requestData = { doctype, issuingAuthority, message, cid, receiver, status: "Pending", }; 
+  const request = await authService.createRequest(requestData); res.status(201).json({ 
+    message: "Request submitted successfully", request }); } catch (error) { 
+      console.error("Error submitting request:", error); res.status(500).json({ error: "Failed to submit request" }); } };
 
 const postIssue = async (req, res) => {
   try {
@@ -139,6 +126,37 @@ const saveuploaded = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getIssuedDocuments, requestDocument,postIssue,viewDocument ,saveuploaded,getuploadDocuments};
+const addRequest = async (req, res) => {
+  try {
+    const { name } = req.body
+
+    const listingPhotos = req.files;
+
+    if (!listingPhotos || listingPhotos.length === 0) {
+      return res.status(400).send("No file uploaded.");
+    }
+    console.log(listingPhotos)
+    const documents = listingPhotos.map((file) => ({
+      doc_name: file.originalname.split('.')[0],
+      url: file.path,
+    }));
+
+    console.log(documents);
+
+    const newListing = await requestModel.create({
+      name,
+      documents
+    });
+
+    res.status(200).json(newListing);
+
+  }
+  catch (error) {
+    console.error("Error fetching issued documents:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+module.exports = { signup, login, getIssuedDocuments, createRequest,postIssue,viewDocument ,saveuploaded,getuploadDocuments, addRequest};
 
 
