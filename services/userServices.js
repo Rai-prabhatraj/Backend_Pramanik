@@ -4,7 +4,7 @@ const User = require('../models/UserModel');
 const jwt = require('jsonwebtoken');
 const Document = require('../models/documentModel')
 
-const DocumentRequest = require("../models/documentrequestModel");
+const Request = require("../models/ApplicationModel");
 const Issue = require("../models/IssueModel")
 
 const signup = async (userData) => {
@@ -30,15 +30,7 @@ const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-const createDocumentRequest = async (userId, data) => {
-  const request = new DocumentRequest({
-    ...data,
-    userId,
-    status: "pending",
-  });
-
-  return await request.save();
-};
+const createRequest = async (data) => { const request = new Request(data); return await request.save(); };
 
 const createIssue = async (issueData) => {
   try {
@@ -80,4 +72,4 @@ const savedata = async (data) => {
 // };
 
 
-module.exports = { signup, login, createDocumentRequest,createIssue,getIssuedDocuments,getuploadDocuments,savedata };
+module.exports = { signup, login, createRequest,createIssue,getIssuedDocuments,getuploadDocuments,savedata };
