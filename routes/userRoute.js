@@ -5,7 +5,7 @@ const cloudinary = require("../helpers/cloudinary")
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-const { signup, login,getIssuedDocuments,createRequest,postIssue,viewDocument, saveuploaded, getuploadDocuments, addRequest } = require('../controllers/userControllers');
+const { signup, login,getIssuedDocuments,createRequest,postIssue,viewDocument, saveuploaded, getuploadDocuments, addRequest,getRequest } = require('../controllers/userControllers');
 
 const router = express.Router();
 
@@ -34,5 +34,6 @@ router.post('/viewDocument', viewDocument)
 router.post('/saveupload',saveuploaded)
 router.get('/getupload',getuploadDocuments)
 router.post('/addRequest', uploadMulter.array("listingPhotos"), addRequest)
+router.post('/getRequest', getRequest)
 
 module.exports = router;

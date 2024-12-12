@@ -3,6 +3,7 @@ const documentSchema = require('../models/documentModel');
 const DocumentRequest = require("../models/documentrequestModel");
 const issueSchema = require("../models/IssueModel")
 const Task = require('../models/taskModel');
+const Request = require('../models/ApplicationModel')
 
 
 const saveData = async (data) => {
@@ -47,8 +48,12 @@ const fetchAllTasks = async () => {
     }
 };
 
+const fetchAllRequests = async () => { 
+  return await Request.find(); 
+};
+
 
   module.exports = {
-    saveData,fetchAllDocumentRequests,fetchAllIssues,fetchAllTasks
+    saveData,fetchAllDocumentRequests,fetchAllIssues,fetchAllTasks,fetchAllRequests
     
 };
