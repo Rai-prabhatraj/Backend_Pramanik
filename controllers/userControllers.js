@@ -3,6 +3,7 @@ const authService = require('../services/userServices');
 const DocumentRequest = require("../models/documentrequestModel");
 const createIssue = require("../models/IssueModel")
 const requestModel = require("../models/ApplicationModel")
+const Request = require('../models/ApplicationModel')
 
 const signup = async (req, res) => {
   try {
@@ -157,6 +158,25 @@ const addRequest = async (req, res) => {
   }
 }
 
-module.exports = { signup, login, getIssuedDocuments, createRequest,postIssue,viewDocument ,saveuploaded,getuploadDocuments, addRequest};
+const getRequest = async (req, res) => {
+  try {
+    const {receiver} = req.body
+
+    const result = await Request.find({receiver: receiver})
+
+    if (!result) {
+      return res.status(400).send("server error.");
+    }
+
+    res.status(200).json(result);
+  }
+  catch (error) {
+    console.error("Error fetching issued documents:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+
+  }
+}
+
+module.exports = { signup, login, getIssuedDocuments, createRequest,postIssue,viewDocument ,saveuploaded,getuploadDocuments, addRequest,getRequest};
 
 
